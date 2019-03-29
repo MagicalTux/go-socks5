@@ -302,8 +302,13 @@ func readAddrSpec(r io.Reader) (*AddrSpec, error) {
 }
 
 func addrSpecFromNetAddr(addr net.Addr) *AddrSpec {
-	if tcpAddr, ok := addr.(*net.TCPAddr); ok {
-		return &AddrSpec{IP: tcpAddr.IP, Port: tcpAddr.Port}
+	switch a := addr.(type) {
+	case *net.TCPAddr:
+		return &AddrSpec{IP: a.IP, Port: a.Port}
+	case *net.UDPAddr:
+		return &AddrSpec{IP: a.IP, Port: a.Port}
+	case *net.IPAddr:
+		return &AddrSpec{IP: a.IP, Port: 0}
 	}
 	return nil
 }
